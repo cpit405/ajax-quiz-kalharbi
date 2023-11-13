@@ -22,7 +22,7 @@ describe("Test Repo Search", () => {
             await page.goto(`file:${path.join(__dirname, '..', 'index.html')}`)
         });
 
-        it("should search for repos", async () => {
+        it("should get search results as a list of links to repos", async () => {
             await page.type("#username", "facebook");
             await page.click("#get-repos");
             await page.waitForSelector("#repos-list li");
@@ -30,6 +30,15 @@ describe("Test Repo Search", () => {
             // Take a screenshot
             await page.screenshot({ path: 'screenshot.png' });
             expect(repos.length).toBeGreaterThan(0);
+            // Check if every li element contains an anchor with an href and text
+            const allLiHaveAnchor = await page.evaluate(() => {
+                const lis = Array.from(document.querySelectorAll("#repos-list li"));
+                return lis.every(li => {
+                    const anchor = li.querySelector("a");
+                    return anchor && anchor.href && anchor.textContent;
+                });
+            });
+            expect(allLiHaveAnchor).toBe(true);
         })
     });
 });
